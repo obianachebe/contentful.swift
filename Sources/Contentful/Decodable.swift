@@ -108,6 +108,47 @@ internal extension CodingUserInfoKey {
 
 // Fields JSON container.
 public extension KeyedDecodingContainer {
+    /// Resolves a link immediately.
+    ///
+    /// - Parameters:
+    ///   - key: The `KeyedDecodingContainer.Key` representing the JSON key where the related resource is found.
+    ///   - decoder: The `Decoder` being used to deserialize the JSON to user-defined classes.
+    /// - Throws: Forwards the error if no link object is in the JSON at the specified key.
+    func resolveLink<T>(forKey key: KeyedDecodingContainer.Key,
+                     decoder: Decoder) throws -> T? {
+        guard decoder.canResolveLinks  else { return nil }
+        let linkResolver = decoder.linkResolver
+        if let link = try decodeIfPresent(Link.self, forKey: key) {
+            let linkKey = DataCache.cacheKey(for: link)
+            return linkResolver.dataCache.item(for: linkKey) as? T
+        } else {
+            return nil
+        }
+    }
+
+    /// Resolves an array of linked resources immediately.
+    ///
+    /// - Parameters:
+    ///   - key: The `KeyedDecodingContainer.Key` representing the JSON key where the related resources are found.
+    ///   - decoder: The `Decoder` being used to deserialize the JSON to user-defined classes.
+    /// - Throws: Forwards the error if no link object is in the JSON at the specified key.
+    func resolveLinksArray<T>(forKey key: KeyedDecodingContainer.Key,
+                     decoder: Decoder) throws -> [T]? {
+        guard decoder.canResolveLinks  else { return nil }
+        let linkResolver = decoder.linkResolver
+        if let links = try decodeIfPresent(Array<Link>.self, forKey: key) {
+            let linkKey: String = links.reduce(into: LinkResolver.linksArrayPrefix) { id, link in
+                id += "," + DataCache.cacheKey(for: link)
+            }
+            let firstKeyIndex = linkKey.index(linkKey.startIndex, offsetBy: LinkResolver.linksArrayPrefix.count)
+            let onlyKeysString = linkKey[firstKeyIndex ..< linkKey.endIndex]
+            // Split creates a [Substring] array, but we need [String] to index the cache
+            let keys = onlyKeysString.split(separator: ",").map { String($0) }
+            return keys.compactMap { linkResolver.dataCache.item(for: $0) } as? [T]
+        } else {
+            return nil
+        }
+    }
 
     /// Caches a link to be resolved once all resources in the response have been serialized.
     ///
@@ -147,11 +188,11 @@ public extension KeyedDecodingContainer {
 
 class LinkResolver {
 
-    private var dataCache: DataCache = DataCache()
+    fileprivate var dataCache: DataCache = DataCache()
 
     private var callbacks: [String: [(AnyObject) -> Void]] = [:]
 
-    private static let linksArrayPrefix = "linksArrayPrefix"
+    fileprivate static let linksArrayPrefix = "linksArrayPrefix"
 
     func cache(assets: [Asset]) {
         for asset in assets {
