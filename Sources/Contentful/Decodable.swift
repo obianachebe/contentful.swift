@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ZippyJSON
 
 /// Helper methods for decoding instances of the various types in your content model.
 public extension Decoder {
@@ -64,6 +65,24 @@ extension JSONDecoder {
     /// returned in the multi-locale format.
     public static func withoutLocalizationContext() -> JSONDecoder {
         let jsonDecoder = JSONDecoder()
+        jsonDecoder.dateDecodingStrategy = .custom(Date.variableISO8601Strategy)
+        return jsonDecoder
+    }
+
+    /// Updates the JSONDecoder provided by the client with the localization context necessary to deserialize
+    /// resources returned in the multi-locale format with the locale information provided by the space.
+    public func update(with localizationContext: LocalizationContext) {
+        userInfo[.localizationContextKey] = localizationContext
+    }
+}
+
+extension ZippyJSONDecoder {
+
+    /// Returns the JSONDecoder owned by the Client. Until the first request to the CDA is made, this
+    /// decoder won't have the necessary localization content required to properly deserialize resources
+    /// returned in the multi-locale format.
+    public static func withoutLocalizationContext() -> ZippyJSONDecoder {
+        let jsonDecoder = ZippyJSONDecoder()
         jsonDecoder.dateDecodingStrategy = .custom(Date.variableISO8601Strategy)
         return jsonDecoder
     }

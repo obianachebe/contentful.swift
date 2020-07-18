@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ZippyJSON
 
 /// The completion callback for an API request with a `Result<T>` containing the requested object of
 /// type `T` on success, or an error if the request was unsuccessful.
@@ -41,7 +42,7 @@ open class Client {
     /// The JSONDecoder that the receiving client instance uses to deserialize JSON. The SDK will
     /// inject information about the locales to this decoder and use this information to normalize
     /// the fields dictionary of entries and assets.
-    public private(set) var jsonDecoder: JSONDecoder
+    public private(set) var jsonDecoder: ZippyJSONDecoder
 
     /// The persistence integration which will receive delegate messages from the `Client` when new
     /// `Entry` and `Asset` objects are created from data being sent over the network. Currently, these
@@ -97,7 +98,7 @@ open class Client {
         self.host = host
         self.clientConfiguration = clientConfiguration
 
-        self.jsonDecoder = JSONDecoder.withoutLocalizationContext()
+        self.jsonDecoder = ZippyJSONDecoder.withoutLocalizationContext()
         if let dateDecodingStrategy = clientConfiguration.dateDecodingStrategy {
             // Override default date decoding strategy if present
             jsonDecoder.dateDecodingStrategy = dateDecodingStrategy

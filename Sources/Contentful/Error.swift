@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ZippyJSON
 
 /// Possible errors being thrown by the SDK
 public enum SDKError: Error, CustomDebugStringConvertible {
@@ -174,7 +175,7 @@ public class APIError: Decodable, Error, CustomDebugStringConvertible {
     // Rather than throw an error and trigger a Swift error breakpoint in Xcode,
     // we use failable initializers so that consumers don't experience error breakpoints when
     // no error was returned from the API.
-    internal static func error(with decoder: JSONDecoder, data: Data, statusCode: Int) -> APIError? {
+    internal static func error(with decoder: ZippyJSONDecoder, data: Data, statusCode: Int) -> APIError? {
         if let error = try? decoder.decode(APIError.self, from: data) {
             // An error must have these things.
             guard error.message != nil && error.requestId != nil else {

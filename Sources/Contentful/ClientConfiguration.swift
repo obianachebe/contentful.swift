@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ZippyJSON
 
 /// Some default values that the SDK uses.
 public enum Host {
@@ -40,7 +41,7 @@ public struct ClientConfiguration {
     public var secure = true
 
     /// An optional configuration to override the date decoding strategy that is provided by the the SDK.
-    public var dateDecodingStrategy: JSONDecoder.DateDecodingStrategy?
+    public var dateDecodingStrategy: ZippyJSONDecoder.DateDecodingStrategy?
 
     /// An optional configuration to override the `TimeZone` the SDK will use to decode `Date` instances. The SDK will
     /// use a `TimeZone` with 0 seconds offset from GMT if this configuration is omitted.
