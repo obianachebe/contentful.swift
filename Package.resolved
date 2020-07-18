@@ -12,7 +12,7 @@
       },
       {
         "package": "ZippyJSON",
-        "repositoryURL": "https://github.com/michaeleisel/ZippyJSON.git",
+        "repositoryURL": "https://github.com/michaeleisel/ZippyJSON",
         "state": {
           "branch": null,
           "revision": "c6ec51357bbb086edd5dac36de44e851fddbfbe3",
